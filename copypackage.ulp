@@ -1,0 +1,43 @@
+#usage "run from the package library, this will make a clone of the current package with a new name"
+"<author> lars8mo@gmail.com</author>"
+
+string part_id;
+int result = dlgDialog("Copy Package")
+{
+	dlgHBoxLayout
+	{
+		dlgLabel("New Name: ");
+		dlgStringEdit(part_id);	// get the part identifier for which the nets will be listed
+	}
+	
+	
+	dlgHBoxLayout {
+         dlgPushButton("+&OK") {
+               dlgAccept();
+               
+               }
+            }
+         dlgStretch(1);
+         dlgPushButton("-&Cancel") { dlgReject(); exit (0);}
+
+};
+if(result == 0)
+	exit (0);
+part_id = strupr(part_id);
+
+
+string cmd = " DISPLAY ALL; GROUP ALL;  COPY ; ";
+string s;
+
+ sprintf(s, "EDIT %s.PAC;\n", part_id);
+          cmd += s;
+          sprintf(s, "DESCRIPTION 'Copy of %s';\n",part_id);
+          cmd += s;
+		  
+
+cmd += "; PASTE\n";
+exit (cmd);
+
+
+
+

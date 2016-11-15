@@ -1,0 +1,39 @@
+
+#usage "Moves any parts on the board layout that have X or Y coordinate less than 0 to be on the board"
+"<p> Places parts on a grid starting at the upper left corner of the board and moving across then down"
+"<author> Lars Norpchen lars8mo@gmail.com </author>"
+
+
+string fileName;
+
+int index = 0;
+
+if (board)
+	{
+		board(B)
+		{
+			fileName = filesetext(B.name, "_move_from_offboard~~~.scr");
+			output(fileName, "wtD")
+			B.elements(E)
+			{
+				real xp = E.x;
+				real yp = E.y;
+				if (xp < 0.0 || yp < 0.0)
+					{
+						xp = ( index % 10 ) * 400.0;
+						xp = xp + 200;
+						yp = ( (10-index) / 10 ) * 300.0;
+						yp = yp + 200;
+						printf("MOVE %s (%0.6f %0.6f);\n", E.name, xp, yp);
+						index = index + 1; 
+
+					}
+			}
+			exit ("SCRIPT '" + fileName + "';");
+		}
+	}
+else
+	{
+		dlgMessageBox("This ULP can only be run ib board layout", "OK");
+	}
+

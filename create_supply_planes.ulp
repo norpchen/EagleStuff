@@ -1,0 +1,98 @@
+#usage "<b>Generate an duplicate outline of a board as top and bottom polygons, connected to GND and +5V</b>\n"
+"<p>Creates a supply plane on top and bottom layers, matching the bounding box of the board outline, and assigned to the nets '+5v' (top) and 'GND' (bottom)"
+"<p> For Eagle 6 or higher, Portions copied from  script by rtzaudio@mindspring.com"
+"<author> Lars Norpchen lars8mo@gmail.com </author>"
+
+
+string cmd = "SET UNDO_LOG OFF;\n"; 		// advisable for speed reasons
+string h;
+
+void header(void)
+{
+	sprintf(h, "set wire_bend 2;\n");
+	cmd += h;
+	sprintf(h, "GRID mil;\n");
+	cmd += h;
+	sprintf(h, "DISPLAY 21 22 1 16;\n\n");
+	cmd += h;
+// sprintf(h, "DISPLAY 48;\n\n");
+// cmd += h;
+}
+
+
+real minx = 999999;
+real maxx = -999999;
+real miny = 999999;
+real maxy = -999999;
+int found = 0;
+
+if (board)
+	{
+		board(B)
+		{
+			header();
+			B.wires(W)
+			{
+				if(W.layer == 20)
+					{
+						if (u2mil(W.x1) < minx) minx = u2mil(W.x1);
+						if (u2mil(W.x2) < minx) minx = u2mil(W.x2);
+
+						if (u2mil(W.y1) < miny) miny = u2mil(W.y1);
+						if (u2mil(W.y2) < miny) miny = u2mil(W.y2);
+
+						if (u2mil(W.y2) > maxy) maxy = u2mil(W.y2);
+						if (u2mil(W.y1) > maxy) maxy = u2mil(W.y1);
+
+						if (u2mil(W.x2) > maxx) maxx = u2mil(W.x2);
+						if (u2mil(W.x1) > maxx) maxx = u2mil(W.x1);
+
+						found = 1;
+					}
+			}
+		}
+		if (found)
+			{
+				sprintf(h, "CHANGE POUR SOLID;\nCHANGE THERMALS ON;\nChange ISOLATE 10mil; \n");
+
+				cmd += h;
+				sprintf(h, "CHANGE LAYER 1; \n \
+					POLYGON '+5v' 8 (%.3f %.3f) (%.3f %.3f)  (%.3f %.3f)  (%.3f %.3f)  (%.3f %.3f);\n",
+				        minx,miny,
+				        minx,maxy,
+				        maxx, maxy,
+				        maxx, miny,
+				        minx,miny      );
+				cmd += h;
+				sprintf(h, "CHANGE LAYER 16;\n \
+					POLYGON 'GND' 8 (%.3f %.3f) (%.3f %.3f)  (%.3f %.3f)  (%.3f %.3f)  (%.3f %.3f);\n",
+				        minx,miny,
+				        minx,maxy,
+				        maxx, maxy,
+				        maxx, miny,
+				        minx,miny      );
+
+				cmd += h;
+			}
+		cmd += "SET UNDO_LOG ON;\nSET POLYGON_RATSNEST ON;\n RATSNEST;\n SET POLYGON_RATSNEST OFF;\n";
+
+		//  EditBox
+		int Result = dlgDialog("Descriptions")
+		{
+			dlgTextEdit(cmd);
+			dlgHBoxLayout
+			{
+				dlgPushButton("+&Execute") dlgAccept();
+				dlgPushButton("-&Cancel") dlgReject();
+			}
+		};
+		if (Result == 0) exit(0);
+
+		exit(cmd);
+	}
+
+else
+	{
+		dlgMessageBox("\n    Start this ULP in a Board    \n");
+		exit (0);
+	}

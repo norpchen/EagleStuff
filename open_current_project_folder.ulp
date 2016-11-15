@@ -1,0 +1,26 @@
+#usage "<b>Opens the current project's folder on the desktop (windows)</b>\n"
+"<author> Lars Norpchen lars8mo@gmail.com </author>"
+
+#include "useful-routines.ulp"
+
+
+string path =  get_project_path();
+char c = '/';
+string p;
+p=path;
+
+int pos = strrchr(path, c);
+if (pos >= 0)
+	{
+		p = strsub(path, 0, pos + 1);
+	}
+
+	p[strlen(p)]=0;
+	
+p = "explorer \"" + p + "\"\n";
+// p = "dopus \"" + p + "\"\n";		// Directory Opus -- highly recommended replacement for explorer.exe
+
+status(p);
+system(p);
+exit(0);
+
